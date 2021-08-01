@@ -18,6 +18,7 @@ func init() {
 			get := <-Save
 			if get.Pool == "s" {
 				initCookie()
+				continue
 			}
 			cks := GetJdCookies()
 			if Config.Mode == Parallel {
@@ -46,11 +47,6 @@ func init() {
 						}
 					}
 				}
-				// if total == 0 {
-				// 	logs.Warn("容器都挂了")
-				// 	continue
-				// }
-
 				l := len(cks)
 				for _, v := range weigth {
 					conclude = append(conclude, int(math.Ceil(v/total*float64(l))))
@@ -94,6 +90,7 @@ type JdCookie struct {
 	Nickname  string
 	BeanNum   string
 	Pool      string
+	// Delete    string `validate:"oneof=true false"`
 }
 
 var ScanedAt = "ScanedAt"
@@ -119,13 +116,15 @@ func (ck *JdCookie) ToPool(key string) {
 		return
 	}
 	if ck.Pool == "" {
-		ck.Pool = key
+		ck.Pool = ck.PtKey
 	} else {
-		ck.Pool += "," + key
+		ck.Pool += "," + ck.PtKey
 	}
 	ck.Updates(map[string]interface{}{
-		Pool:     ck.Pool,
-		ScanedAt: time.Now().Unix(),
+		Available: True,
+		PtKey:     key,
+		Pool:      ck.Pool,
+		ScanedAt:  time.Now().Local().Format("2006-01-02"),
 	})
 }
 
