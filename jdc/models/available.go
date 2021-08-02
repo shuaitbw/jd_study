@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/astaxie/beego/httplib"
+	"github.com/beego/beego/v2/client/httplib"
 )
 
 type UserInfoResult struct {
@@ -129,6 +129,7 @@ func initCookie() {
 	go func() {
 		Save <- &JdCookie{}
 	}()
+
 }
 
 func CookieOK(ck *JdCookie) bool {

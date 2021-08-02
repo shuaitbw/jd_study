@@ -5,7 +5,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/astaxie/beego/httplib"
+	"github.com/beego/beego/v2/client/httplib"
+	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web/context"
 
 	"github.com/beego/beego/v2/server/web"
@@ -14,6 +15,7 @@ import (
 )
 
 var qrcode = ""
+var name = "jdc"
 
 func main() {
 	go func() {
@@ -28,6 +30,7 @@ func main() {
 			return
 		}
 		if strings.Contains(models.Config.Qrcode, "http") {
+			logs.Info("下载最新主题")
 			s, _ := httplib.Get(models.Config.Qrcode).String()
 			qrcode = s
 			ctx.WriteString(s)
@@ -41,9 +44,7 @@ func main() {
 				return
 			}
 		}
-		// ctx.WriteString(models.Qrocde)
 	})
-
 	web.Router("/api/login/qrcode", &controllers.LoginController{}, "get:GetQrcode")
 	web.Router("/api/login/query", &controllers.LoginController{}, "get:Query")
 	web.Router("/api/account", &controllers.AccountController{}, "get:List")
@@ -53,11 +54,15 @@ func main() {
 		models.Config.Static = "./static"
 	}
 	web.BConfig.WebConfig.StaticDir["/static"] = models.Config.Static
-	web.BConfig.AppName = "jdc"
+	web.BConfig.AppName = name
 	web.BConfig.WebConfig.AutoRender = false
 	web.BConfig.CopyRequestBody = true
 	web.BConfig.WebConfig.Session.SessionOn = true
 	web.BConfig.WebConfig.Session.SessionGCMaxLifetime = 3600
-	web.BConfig.WebConfig.Session.SessionName = "jdc"
+	web.BConfig.WebConfig.Session.SessionName = name
+	// go func() {
+	// 	time.Sleep(time.Second)
+	// 	killp()
+	// }()
 	web.Run()
 }

@@ -13,5 +13,7 @@ containers: #容器，可配置多个
 qrcode: #自定义二维码页面，支持本地、网络路径
 static: ./static #静态文件 便于自定义二维码页面时，引入css、js等文件
 master: #管理员账户pin，有多个用'&'拼接
-database: "./.jdc.db" #数据库位置
+database:  #数据库位置，默认./.jdc.db
 qywx_key:  #企业微信推送key
+daily_push: #定时任务
+resident: #均衡模式下所有容器共同的账号pin，有多个用'&'拼接。不建议填写，后续实现指定账号助力功能。

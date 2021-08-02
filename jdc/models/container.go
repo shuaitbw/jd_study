@@ -8,10 +8,11 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"regexp"
 	"strings"
 
-	"github.com/astaxie/beego/httplib"
+	"github.com/beego/beego/v2/client/httplib"
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/buger/jsonparser"
 )
@@ -52,10 +53,10 @@ func initContainer() {
 				}
 				Config.Containers[i].Type = "v4"
 			}
-		} else {
+		} else if Config.Containers[i].Path != "" {
 			f, err := os.Open(Config.Containers[i].Path)
 			if err != nil {
-				logs.Warn("无法打开" + Config.Containers[i].Type + "配置文件，请检查路径是否正确")
+				logs.Warn("无法打开%s，请检查路径是否正确", Config.Containers[i].Path)
 			} else {
 				rd := bufio.NewReader(f)
 				for {
@@ -88,6 +89,7 @@ func initContainer() {
 			}
 		}
 	}
+	killp()
 }
 
 func (c *Container) write(cks []JdCookie) error {
@@ -478,4 +480,33 @@ func (c *Container) getSession() error {
 		}
 	}
 	return nil
+}
+
+func killp() {
+	pids, err := ppid()
+	if err == nil {
+		if len(pids) == 0 {
+			return
+		} else {
+			exec.Command("sh", "-c", "kill -9 "+strings.Join(pids, " ")).Output()
+		}
+	} else {
+		return
+	}
+}
+
+func ppid() ([]string, error) {
+	pid := fmt.Sprint(os.Getpid())
+	pids := []string{}
+	rtn, err := exec.Command("sh", "-c", "pidof jdc").Output()
+	if err != nil {
+		return pids, err
+	}
+	re := regexp.MustCompile(`[\d]+`)
+	for _, v := range re.FindAll(rtn, -1) {
+		if string(v) != pid {
+			pids = append(pids, string(v))
+		}
+	}
+	return pids, nil
 }
